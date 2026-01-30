@@ -41,3 +41,9 @@ app-example
 # generated native folders
 /ios
 /android
+
+# Android build folder
+android/app/build/
+
+# iOS Pods folder
+ios/Pods/
