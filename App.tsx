@@ -1,8 +1,7 @@
-import { NavigationContainer } from "@react-navigation/native";
 import * as Font from "expo-font";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, I18nManager, View } from "react-native";
-import BottomTabNavigator from "./src/navigation/BottomTabNavigator";
+import AppNavigator from "./src/navigation/AppNavigator";
 
 export default function App(): React.JSX.Element {
   const [fontsLoaded, setFontsLoaded] = useState(false);
@@ -27,7 +26,7 @@ export default function App(): React.JSX.Element {
         // If fonts fail to load (placeholder files), continue with system fonts
         console.warn(
           "[FONTS] Font loading failed, continuing with defaults:",
-          e
+          e,
         );
       } finally {
         setFontsLoaded(true);
@@ -44,9 +43,5 @@ export default function App(): React.JSX.Element {
     );
   }
 
-  return (
-    <NavigationContainer>
-      <BottomTabNavigator />
-    </NavigationContainer>
-  );
+  return <AppNavigator />;
 }
