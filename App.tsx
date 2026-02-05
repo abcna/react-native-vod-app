@@ -7,10 +7,10 @@ export default function App(): React.JSX.Element {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
   useEffect(() => {
-    // Enable RTL for Persian language
-    I18nManager.allowRTL(true);
-    I18nManager.forceRTL(true);
-    console.log("[RTL] Persian RTL enabled");
+    // LTR baseline (we'll re-enable RTL later when the UI is finalized)
+    I18nManager.allowRTL(false);
+    I18nManager.forceRTL(false);
+    console.log("[RTL] LTR baseline enabled");
   }, []);
 
   useEffect(() => {

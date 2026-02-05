@@ -23,6 +23,7 @@ export interface TMDBTvListItem {
   overview: string;
   poster_path: string | null;
   backdrop_path: string | null;
+  genre_ids?: number[];
   vote_average: number;
   first_air_date?: string;
 }

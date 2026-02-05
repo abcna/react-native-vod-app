@@ -1,65 +1,98 @@
 import { FlashList } from "@shopify/flash-list";
-import { Image } from "expo-image";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 
-import { tmdbImageUrl } from "../../../services/tmdb.service";
+import { ChevronRight } from "lucide-react-native";
+
 import type { TMDBTvListItem } from "../../../types/tmdb";
+
+import DiscoverCard from "./DiscoverCard";
 
 type Props = {
   title: string;
   items: TMDBTvListItem[];
   onPressItem: (tvId: number) => void;
+  onPressSeeAll?: () => void;
 };
 
 export default function SeriesSlider({
   title,
   items,
   onPressItem,
+  onPressSeeAll,
 }: Props): React.JSX.Element | null {
   if (!items.length) return null;
 
+  const CARD_WIDTH = 154;
+  const CARD_HEIGHT = 230;
+  const GAP = 16;
+  const SNAP = CARD_WIDTH + GAP;
+
   return (
-    <View className="mt-4">
-      <View className="px-4 mb-2 flex-row items-center justify-between">
-        <Text className="text-white text-base font-extrabold">{title}</Text>
+    <View className="mt-10">
+      <View className="pt-5 mb-5" style={{ padding :15}}>
+        {onPressSeeAll ? (
+          <Pressable
+            onPress={onPressSeeAll}
+            hitSlop={10}
+            className="flex-row items-center"
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              alignSelf: "flex-start",
+            }}
+          >
+            <Text
+              className="text-[46px] font-black text-white"
+              style={{ color: "#FFFFFF", fontWeight: "900", flexShrink: 1 }}
+              numberOfLines={1}
+            >
+              {title}
+            </Text>
+
+            <View style={{ marginLeft: 0, flexShrink: 0 }}>
+              <ChevronRight size={30} color="#ffffff" strokeWidth={3} />
+            </View>
+          </Pressable>
+        ) : (
+          <View
+            className="flex-row items-center"
+            style={{ flexDirection: "row", alignItems: "center" }}
+          >
+            <Text
+              className="text-[46px] font-black text-white"
+              style={{ color: "#FFFFFF", fontWeight: "900", flexShrink: 1 }}
+              numberOfLines={1}
+            >
+              {title}
+            </Text>
+
+            <View style={{ marginLeft: 0, flexShrink: 0 }}>
+              <ChevronRight size={30} color="#8d8d8d" strokeWidth={3} />
+            </View>
+          </View>
+        )}
       </View>
 
       <FlashList
         horizontal
         data={items}
-        estimatedItemSize={110}
         showsHorizontalScrollIndicator={false}
         keyExtractor={(it) => String(it.id)}
-        contentContainerStyle={{ paddingHorizontal: 16 }}
-        ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 2 }}
+        ItemSeparatorComponent={() => <View style={{ width: GAP }} />}
+        snapToInterval={SNAP}
+        decelerationRate="fast"
+        snapToAlignment="start"
         renderItem={({ item }) => {
-          const poster = tmdbImageUrl(item.poster_path, "w342");
           return (
-            <Pressable
+            <DiscoverCard
+              title={item.name}
+              posterPath={item.poster_path}
               onPress={() => onPressItem(item.id)}
-              className="w-[110px]"
-            >
-              <Image
-                source={poster ? { uri: poster } : undefined}
-                style={{
-                  width: 110,
-                  height: 160,
-                  borderRadius: 14,
-                  backgroundColor: "#111",
-                }}
-                contentFit="cover"
-              />
-              <Text numberOfLines={1} className="text-white mt-2 font-bold">
-                {item.name}
-              </Text>
-              <Text numberOfLines={1} className="text-neutral-500 text-xs mt-1">
-                ⭐{" "}
-                {Number.isFinite(item.vote_average)
-                  ? item.vote_average.toFixed(1)
-                  : "—"}
-              </Text>
-            </Pressable>
+              width={CARD_WIDTH}
+              height={CARD_HEIGHT}
+            />
           );
         }}
       />

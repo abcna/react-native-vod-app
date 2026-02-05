@@ -102,6 +102,21 @@ export const tmdbService = {
     return data;
   },
 
+  async getTopRatedTv(page: number = 1) {
+    assertAuth();
+    const { data } = await tmdbClient.get<TMDBPagedResponse<TMDBTvListItem>>(
+      "/tv/top_rated",
+      {
+        params: {
+          ...authParams(),
+          language: TMDB_LANGUAGE,
+          page,
+        },
+      },
+    );
+    return data;
+  },
+
   async searchMulti(query: string, page: number = 1) {
     assertAuth();
     const { data } = await tmdbClient.get<
