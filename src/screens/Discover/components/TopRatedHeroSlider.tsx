@@ -2,17 +2,11 @@ import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useMemo, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Dimensions,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Play } from "lucide-react-native";
 
+import { HeroSliderSkeleton } from "../../../components/ui/skeletonLayouts";
 import { tmdbImageUrl } from "../../../services/tmdb.service";
 import type { TMDBTvListItem } from "../../../types/tmdb";
 
@@ -37,22 +31,7 @@ export default function TopRatedHeroSlider({
   const lastIndexRef = useRef(0);
 
   if (loading) {
-    return (
-      <View
-        style={{
-          width: "100%",
-          height,
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#000000",
-        }}
-      >
-        <ActivityIndicator />
-        <Text style={{ marginTop: 10, color: "rgba(255,255,255,0.75)" }}>
-          Loading top rated…
-        </Text>
-      </View>
-    );
+    return <HeroSliderSkeleton height={height} />;
   }
 
   if (data.length === 0) {

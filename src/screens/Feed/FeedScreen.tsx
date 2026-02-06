@@ -5,15 +5,9 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Play } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 
+import { FeedCardSkeleton } from "../../components/ui/skeletonLayouts";
 import type { RootStackParamList } from "../../navigation/AppNavigator";
 import { tmdbImageUrl, tmdbService } from "../../services/tmdb.service";
 import type { TMDBTvListItem, TMDBVideo } from "../../types/tmdb";
@@ -123,10 +117,13 @@ export default function FeedScreen(): React.JSX.Element {
       </View>
 
       {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator />
-          <Text style={styles.centerText}>Loading…</Text>
-        </View>
+        <FlashList
+          data={[0, 1, 2, 3]}
+          keyExtractor={(it) => String(it)}
+          contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: 28 }}
+          ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
+          renderItem={() => <FeedCardSkeleton />}
+        />
       ) : error ? (
         <View style={styles.center}>
           <Text style={[styles.centerText, { color: "#F87171" }]}>{error}</Text>

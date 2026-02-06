@@ -5,7 +5,6 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
   Keyboard,
   Pressable,
   ScrollView,
@@ -21,6 +20,8 @@ import {
 
 import { Search, X } from "lucide-react-native";
 
+import Skeleton from "../../components/ui/Skeleton";
+import { SeriesSliderSkeleton } from "../../components/ui/skeletonLayouts";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import type { RootStackParamList } from "../../navigation/AppNavigator";
 import { tmdbImageUrl, tmdbService } from "../../services/tmdb.service";
@@ -220,21 +221,6 @@ export default function DiscoverScreen(): React.JSX.Element {
     });
   };
 
-  if (popularLoading) {
-    return (
-      <View className="flex-1 bg-zinc-950 items-center justify-center p-4">
-        <LinearGradient
-          colors={["#09090b", "#000000"]}
-          style={StyleSheet.absoluteFill}
-        />
-        <ActivityIndicator />
-        <Text className="text-white/70 mt-3" style={{ color: "#FFFFFF" }}>
-          Loading…
-        </Text>
-      </View>
-    );
-  }
-
   if (popularError) {
     return (
       <View className="flex-1 bg-zinc-950 items-center justify-center p-4">
@@ -364,10 +350,8 @@ export default function DiscoverScreen(): React.JSX.Element {
                   gap: 10,
                 }}
               >
-                <ActivityIndicator />
-                <Text style={{ color: "rgba(255,255,255,0.75)" }}>
-                  Searching…
-                </Text>
+                <Skeleton width={18} height={18} radius={9} />
+                <Skeleton width={120} height={12} radius={10} />
               </View>
             ) : null}
 
@@ -544,22 +528,39 @@ export default function DiscoverScreen(): React.JSX.Element {
               ) : null}
             </View>
 
-            <SeriesSlider
-              title="Most Trending"
-              items={popularItems.slice(0, 20)}
-              onPressItem={goToDetails}
-              onPressSeeAll={onSeeAllPopular}
-            />
-
-            {genres.slice(0, 7).map((g) => (
+            {popularLoading ? (
+              <SeriesSliderSkeleton />
+            ) : (
               <SeriesSlider
-                key={g.id}
-                title={g.name}
-                items={genreRows[g.id] ?? []}
+                title="Most Trending"
+                items={popularItems.slice(0, 20)}
                 onPressItem={goToDetails}
-                onPressSeeAll={() => onSeeAllGenre(g)}
+                onPressSeeAll={onSeeAllPopular}
               />
-            ))}
+            )}
+
+            {genres.length === 0 && !genresError ? (
+              <>
+                <SeriesSliderSkeleton />
+                <SeriesSliderSkeleton />
+              </>
+            ) : (
+              genres.slice(0, 7).map((g) => {
+                const row = genreRows[g.id];
+                if (row == null && !genresError) {
+                  return <SeriesSliderSkeleton key={g.id} />;
+                }
+                return (
+                  <SeriesSlider
+                    key={g.id}
+                    title={g.name}
+                    items={row ?? []}
+                    onPressItem={goToDetails}
+                    onPressSeeAll={() => onSeeAllGenre(g)}
+                  />
+                );
+              })
+            )}
           </ScrollView>
         )}
       </SafeAreaView>

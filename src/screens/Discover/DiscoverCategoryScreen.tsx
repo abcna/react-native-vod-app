@@ -4,7 +4,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { ArrowLeft } from "lucide-react-native";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
   Pressable,
   RefreshControl,
   StyleSheet,
@@ -16,6 +15,8 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
+import Skeleton from "../../components/ui/Skeleton";
+import { DiscoverGridSkeleton } from "../../components/ui/skeletonLayouts";
 import type { RootStackParamList } from "../../navigation/AppNavigator";
 import { tmdbService } from "../../services/tmdb.service";
 import type { TMDBTvListItem } from "../../types/tmdb";
@@ -30,6 +31,8 @@ export default function DiscoverCategoryScreen({
 }: Props): React.JSX.Element {
   const insets = useSafeAreaInsets();
   const { title, kind, genreId } = route.params;
+
+  const genreIdSafe = kind === "genre" ? genreId : undefined;
 
   const [items, setItems] = useState<TMDBTvListItem[]>([]);
   const [page, setPage] = useState(1);
@@ -46,12 +49,16 @@ export default function DiscoverCategoryScreen({
       try {
         setError(null);
 
+        if (kind === "genre" && typeof genreIdSafe !== "number") {
+          throw new Error("Missing genre id");
+        }
+
         const res =
           kind === "popular"
             ? await tmdbService.getPopularTv(nextPage)
             : kind === "top_rated"
               ? await tmdbService.getTopRatedTv(nextPage)
-              : await tmdbService.discoverTvByGenre(genreId, nextPage);
+              : await tmdbService.discoverTvByGenre(genreIdSafe!, nextPage);
 
         setTotalPages(res.total_pages ?? 1);
         setPage(res.page ?? nextPage);
@@ -62,7 +69,7 @@ export default function DiscoverCategoryScreen({
         setError(e?.message ?? "Failed to load items");
       }
     },
-    [genreId, kind],
+    [genreIdSafe, kind],
   );
 
   useEffect(() => {
@@ -122,10 +129,7 @@ export default function DiscoverCategoryScreen({
         </View>
 
         {loading ? (
-          <View style={styles.center}>
-            <ActivityIndicator />
-            <Text style={styles.centerText}>Loading…</Text>
-          </View>
+          <DiscoverGridSkeleton />
         ) : error ? (
           <View style={styles.center}>
             <Text style={[styles.centerText, { color: "#F87171" }]}>
@@ -181,7 +185,9 @@ export default function DiscoverCategoryScreen({
             ListFooterComponent={
               loadingMore ? (
                 <View style={{ paddingVertical: 18 }}>
-                  <ActivityIndicator />
+                  <View style={{ alignItems: "center" }}>
+                    <Skeleton height={12} radius={10} width={140} />
+                  </View>
                 </View>
               ) : null
             }

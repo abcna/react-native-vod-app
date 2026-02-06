@@ -1,15 +1,9 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Image } from "expo-image";
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { SeriesDetailsSkeleton } from "../../components/ui/skeletonLayouts";
 import type { RootStackParamList } from "../../navigation/AppNavigator";
 import { tmdbImageUrl, tmdbService } from "../../services/tmdb.service";
 import type {
@@ -100,12 +94,7 @@ export default function SeriesDetailsScreen({
   }, [tvId, selectedSeason]);
 
   if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator />
-        <Text style={styles.muted}>Loading series…</Text>
-      </View>
-    );
+    return <SeriesDetailsSkeleton />;
   }
 
   if (error || !details) {
