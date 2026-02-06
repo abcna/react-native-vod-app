@@ -5,10 +5,10 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   ArrowLeft,
-  Heart,
   MessageCircle,
   Share2,
   ThumbsDown,
+  ThumbsUp,
 } from "lucide-react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -39,6 +39,28 @@ type ReelItem = {
   poster_path?: string | null;
   backdrop_path?: string | null;
 };
+
+function formatCompact(n: number): string {
+  if (!Number.isFinite(n)) return "0";
+  if (n >= 1_000_000)
+    return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  if (n >= 1_000) return `${Math.round(n / 1_000)}K`;
+  return String(Math.max(0, Math.round(n)));
+}
+
+function formatWithCommas(n: number): string {
+  if (!Number.isFinite(n)) return "0";
+  return Math.max(0, Math.round(n)).toLocaleString("en-US");
+}
+
+function fakeLikeCount(tvId: number): number {
+  // Deterministic placeholder until real engagement is backed by your own API.
+  return 100_000 + (tvId % 95_000);
+}
+
+function fakeCommentCount(tvId: number): number {
+  return 300 + (tvId % 5_000);
+}
 
 function pickBestYouTubeKey(videos: TMDBVideo[]): string | null {
   const list = (videos ?? []).filter(
@@ -298,69 +320,73 @@ export default function TrailerReelsScreen({
                     <Text style={styles.titleSub}>Open details</Text>
                   </Pressable>
                 </View>
+              </View>
 
-                <View style={styles.bottomRight}>
-                  <Pressable
-                    onPress={() => {
-                      setLikedByTvId((prev) => {
-                        const next = !prev[tvId];
-                        return { ...prev, [tvId]: next };
-                      });
-                      setDislikedByTvId((prev) => ({ ...prev, [tvId]: false }));
-                    }}
-                    style={styles.actionBtn}
-                  >
-                    <Heart
-                      size={22}
-                      color={likedByTvId[tvId] ? "#F43F5E" : "#FFFFFF"}
-                      fill={likedByTvId[tvId] ? "#F43F5E" : "transparent"}
-                    />
-                    <Text style={styles.actionLabel}>Like</Text>
-                  </Pressable>
+              <View
+                pointerEvents="box-none"
+                style={[styles.rightOverlay, { bottom: 126 + insets.bottom }]}
+              >
+                <Pressable
+                  onPress={() => {
+                    setLikedByTvId((prev) => {
+                      const next = !prev[tvId];
+                      return { ...prev, [tvId]: next };
+                    });
+                    setDislikedByTvId((prev) => ({ ...prev, [tvId]: false }));
+                  }}
+                  style={styles.actionStack}
+                >
+                  <ThumbsUp
+                    size={30}
+                    color="#FFFFFF"
+                    fill={likedByTvId[tvId] ? "#FFFFFF" : "transparent"}
+                  />
+                  <Text style={styles.actionValue}>
+                    {formatCompact(fakeLikeCount(tvId))}
+                  </Text>
+                </Pressable>
 
-                  <Pressable
-                    onPress={() => {
-                      setDislikedByTvId((prev) => {
-                        const next = !prev[tvId];
-                        return { ...prev, [tvId]: next };
-                      });
-                      setLikedByTvId((prev) => ({ ...prev, [tvId]: false }));
-                    }}
-                    style={styles.actionBtn}
-                  >
-                    <ThumbsDown
-                      size={22}
-                      color={dislikedByTvId[tvId] ? "#60A5FA" : "#FFFFFF"}
-                      fill={dislikedByTvId[tvId] ? "#60A5FA" : "transparent"}
-                    />
-                    <Text style={styles.actionLabel}>Dislike</Text>
-                  </Pressable>
+                <Pressable
+                  onPress={() => {
+                    setDislikedByTvId((prev) => {
+                      const next = !prev[tvId];
+                      return { ...prev, [tvId]: next };
+                    });
+                    setLikedByTvId((prev) => ({ ...prev, [tvId]: false }));
+                  }}
+                  style={styles.actionStack}
+                >
+                  <ThumbsDown
+                    size={30}
+                    color="#FFFFFF"
+                    fill={dislikedByTvId[tvId] ? "#FFFFFF" : "transparent"}
+                  />
+                  <Text style={styles.actionLabel}>Dislike</Text>
+                </Pressable>
 
-                  <Pressable
-                    onPress={() => {
-                      // Placeholder UX for now; we can replace with a bottom sheet.
-                      Share.share({
-                        message: youtubeKey
-                          ? `Watch trailer: ${item.name} https://www.youtube.com/watch?v=${youtubeKey}`
-                          : `Check out ${item.name}`,
-                      }).catch(() => {});
-                    }}
-                    style={styles.actionBtn}
-                  >
-                    <Share2 size={22} color="#FFFFFF" />
-                    <Text style={styles.actionLabel}>Share</Text>
-                  </Pressable>
+                <Pressable
+                  onPress={() => setCommentTvId(tvId)}
+                  style={styles.actionStack}
+                >
+                  <MessageCircle size={30} color="#FFFFFF" />
+                  <Text style={styles.actionValue}>
+                    {formatWithCommas(fakeCommentCount(tvId))}
+                  </Text>
+                </Pressable>
 
-                  <Pressable
-                    onPress={() => {
-                      setCommentTvId(tvId);
-                    }}
-                    style={styles.actionBtn}
-                  >
-                    <MessageCircle size={22} color="#FFFFFF" />
-                    <Text style={styles.actionLabel}>Comment</Text>
-                  </Pressable>
-                </View>
+                <Pressable
+                  onPress={() => {
+                    Share.share({
+                      message: youtubeKey
+                        ? `Watch trailer: ${item.name} https://www.youtube.com/watch?v=${youtubeKey}`
+                        : `Check out ${item.name}`,
+                    }).catch(() => {});
+                  }}
+                  style={styles.actionStack}
+                >
+                  <Share2 size={30} color="#FFFFFF" />
+                  <Text style={styles.actionLabel}>Share</Text>
+                </Pressable>
               </View>
             </SafeAreaView>
           ) : null}
@@ -371,6 +397,7 @@ export default function TrailerReelsScreen({
       activeIndex,
       dislikedByTvId,
       errorByTvId,
+      insets.bottom,
       insets.top,
       likedByTvId,
       loadingByTvId,
@@ -498,7 +525,6 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     flexDirection: "row",
     alignItems: "flex-end",
-    justifyContent: "space-between",
   },
   bottomLeft: {
     flex: 1,
@@ -524,27 +550,28 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 12,
   },
-  bottomRight: {
-    width: 88,
+  rightOverlay: {
+    position: "absolute",
+    right: 12,
     alignItems: "center",
-    gap: 14,
+    gap: 18,
   },
-  actionBtn: {
+  actionStack: {
+    width: 74,
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
+    gap: 8,
     paddingVertical: 6,
-    width: 88,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.10)",
-    backgroundColor: "rgba(0,0,0,0.15)",
+  },
+  actionValue: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "900",
+    fontSize: 12,
   },
   actionLabel: {
-    color: "rgba(255,255,255,0.80)",
-    fontWeight: "800",
-    fontSize: 11,
-    letterSpacing: 0.3,
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "900",
+    fontSize: 12,
   },
   sheetBackdrop: {
     flex: 1,

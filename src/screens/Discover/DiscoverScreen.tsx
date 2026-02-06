@@ -6,7 +6,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Keyboard,
   Pressable,
   ScrollView,
@@ -206,8 +205,19 @@ export default function DiscoverScreen(): React.JSX.Element {
     navigation.navigate("SeriesDetails", { tvId });
   };
 
-  const onSeeAll = (title: string) => {
-    Alert.alert(title, "The 'See all' screen will be added soon.");
+  const onSeeAllPopular = () => {
+    navigation.navigate("DiscoverCategory", {
+      title: "Most Trending",
+      kind: "popular",
+    });
+  };
+
+  const onSeeAllGenre = (g: TMDBGenre) => {
+    navigation.navigate("DiscoverCategory", {
+      title: g.name,
+      kind: "genre",
+      genreId: g.id,
+    });
   };
 
   if (popularLoading) {
@@ -538,7 +548,7 @@ export default function DiscoverScreen(): React.JSX.Element {
               title="Most Trending"
               items={popularItems.slice(0, 20)}
               onPressItem={goToDetails}
-              onPressSeeAll={() => onSeeAll("Most Trending")}
+              onPressSeeAll={onSeeAllPopular}
             />
 
             {genres.slice(0, 7).map((g) => (
@@ -547,7 +557,7 @@ export default function DiscoverScreen(): React.JSX.Element {
                 title={g.name}
                 items={genreRows[g.id] ?? []}
                 onPressItem={goToDetails}
-                onPressSeeAll={() => onSeeAll(g.name)}
+                onPressSeeAll={() => onSeeAllGenre(g)}
               />
             ))}
           </ScrollView>
