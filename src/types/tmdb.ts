@@ -88,3 +88,32 @@ export interface TMDBMultiSearchItem {
   profile_path?: string | null;
   vote_average?: number;
 }
+
+export type TMDBVideoSite = "YouTube" | "Vimeo";
+export type TMDBVideoType =
+  | "Trailer"
+  | "Teaser"
+  | "Clip"
+  | "Featurette"
+  | "Behind the Scenes"
+  | "Bloopers"
+  | "Opening Credits"
+  | "Recap";
+
+export interface TMDBVideo {
+  id: string;
+  iso_639_1?: string;
+  iso_3166_1?: string;
+  key: string;
+  name: string;
+  official?: boolean;
+  published_at?: string;
+  site: TMDBVideoSite | string;
+  size?: number;
+  type: TMDBVideoType | string;
+}
+
+export interface TMDBVideoListResponse {
+  id: number;
+  results: TMDBVideo[];
+}

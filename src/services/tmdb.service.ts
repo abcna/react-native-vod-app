@@ -8,6 +8,7 @@ import type {
   TMDBTvDetailsAppended,
   TMDBTvListItem,
   TMDBTvSeasonDetails,
+  TMDBVideoListResponse,
 } from "../types/tmdb";
 
 const TMDB_API_KEY = process.env.EXPO_PUBLIC_TMDB_API_KEY;
@@ -183,6 +184,20 @@ export const tmdbService = {
     assertAuth();
     const { data } = await tmdbClient.get<TMDBTvSeasonDetails>(
       `/tv/${tvId}/season/${seasonNumber}`,
+      {
+        params: {
+          ...authParams(),
+          language: TMDB_LANGUAGE,
+        },
+      },
+    );
+    return data;
+  },
+
+  async getTvVideos(tvId: number) {
+    assertAuth();
+    const { data } = await tmdbClient.get<TMDBVideoListResponse>(
+      `/tv/${tvId}/videos`,
       {
         params: {
           ...authParams(),
