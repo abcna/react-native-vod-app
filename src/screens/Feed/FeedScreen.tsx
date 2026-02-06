@@ -147,10 +147,23 @@ export default function FeedScreen(): React.JSX.Element {
             return (
               <Pressable
                 onPress={() =>
-                  navigation.navigate("TrailerPlayer", {
-                    tvId: item.id,
-                    initialVideoKey: trailerKeyByTvId[item.id],
-                    title: item.name,
+                  navigation.navigate("TrailerReels", {
+                    items: cardData.map((x) => ({
+                      id: x.id,
+                      name: x.name,
+                      poster_path: x.poster_path,
+                      backdrop_path: x.backdrop_path,
+                    })),
+                    initialIndex: Math.max(
+                      0,
+                      cardData.findIndex((x) => x.id === item.id),
+                    ),
+                    initialTrailerKeyByTvId: Object.fromEntries(
+                      Object.entries(trailerKeyByTvId).map(([k, v]) => [
+                        String(k),
+                        v,
+                      ]),
+                    ),
                   })
                 }
                 style={styles.card}

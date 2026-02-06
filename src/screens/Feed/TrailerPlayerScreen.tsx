@@ -60,7 +60,7 @@ export default function TrailerPlayerScreen({
   const [youtubeKey, setYoutubeKey] = useState<string | null>(
     initialVideoKey ?? null,
   );
-  const [started, setStarted] = useState(Boolean(initialVideoKey));
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -135,6 +135,7 @@ export default function TrailerPlayerScreen({
 
       {youtubeKey ? (
         <WebView
+          key={`${youtubeKey}-${started ? 1 : 0}`}
           source={{ html }}
           style={{ flex: 1, backgroundColor: "#000000" }}
           javaScriptEnabled
